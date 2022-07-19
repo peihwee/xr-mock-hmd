@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.XR;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
+
 
 //---------------------------------------------------------------------------------
 // Youtube      : https://www.youtube.com/watch?v=UlqdHrfXppo
@@ -12,6 +15,8 @@ public class HMDInfoManager : MonoBehaviour
     // Private Variables
     //===================
     [SerializeField] GameObject mockSimulator;
+    [SerializeField] GameObject XRrigcam;
+
 	
     //---------------------------------------------------------------------------------
     // Start is when Script is active
@@ -30,12 +35,24 @@ public class HMDInfoManager : MonoBehaviour
         {
             Debug.Log("Using Mock HMD");
             mockSimulator.SetActive(true);
+
+            InputAction rotateHeadAction = XRrigcam.GetComponent<TrackedPoseDriver>().rotationAction;
+
+            InputBinding inputBinding = rotateHeadAction.bindings[0];
+            inputBinding.overridePath = "<XRSimulatedHMD>/centerEyeRotation";
+            rotateHeadAction.ApplyBindingOverride(0, inputBinding);
+
         }
         else
         {
             Debug.Log("We Have a Headset " + XRSettings.loadedDeviceName);
             mockSimulator.SetActive(false);
+            XRrigcam.GetComponent<TrackedPoseDriver>().rotationAction.RemoveAllBindingOverrides();
         }
+
+        // Lock Mouse Cursor at center of Game Window and hide it. Press ESC to see cursor
+        Cursor.lockState = CursorLockMode.Locked;
+
     }
 	
 }
